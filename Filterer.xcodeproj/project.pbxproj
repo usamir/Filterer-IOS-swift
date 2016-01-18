@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3758A66D1C4AB13C00DE7FDE /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3758A66C1C4AB13C00DE7FDE /* TableViewController.swift */; };
 		37F7DF8F1C3B9D4C002681E4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F7DF8E1C3B9D4C002681E4 /* AppDelegate.swift */; };
 		37F7DF911C3B9D4C002681E4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F7DF901C3B9D4C002681E4 /* ViewController.swift */; };
 		37F7DF941C3B9D4D002681E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 37F7DF921C3B9D4D002681E4 /* Main.storyboard */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3758A66C1C4AB13C00DE7FDE /* TableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		37F7DF8B1C3B9D4C002681E4 /* Filterer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Filterer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		37F7DF8E1C3B9D4C002681E4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		37F7DF901C3B9D4C002681E4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -58,6 +60,7 @@
 			children = (
 				37F7DF8E1C3B9D4C002681E4 /* AppDelegate.swift */,
 				37F7DF901C3B9D4C002681E4 /* ViewController.swift */,
+				3758A66C1C4AB13C00DE7FDE /* TableViewController.swift */,
 				37F7DFA01C3BA670002681E4 /* RGBAImage.swift */,
 				37F7DF921C3B9D4D002681E4 /* Main.storyboard */,
 				37F7DF951C3B9D4D002681E4 /* Assets.xcassets */,
@@ -142,6 +145,7 @@
 				37F7DF911C3B9D4C002681E4 /* ViewController.swift in Sources */,
 				37F7DFA11C3BA670002681E4 /* RGBAImage.swift in Sources */,
 				37F7DF8F1C3B9D4C002681E4 /* AppDelegate.swift in Sources */,
+				3758A66D1C4AB13C00DE7FDE /* TableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +303,7 @@
 				37F7DF9F1C3B9D4D002681E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
