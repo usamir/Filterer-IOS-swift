@@ -8,9 +8,10 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
     var filteredImage: UIImage?
+    var originalImage: UIImage!
     
     @IBOutlet var imgView: UIImageView!
     
@@ -23,11 +24,29 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         super.viewDidLoad()
         secondaryMenu.translatesAutoresizingMaskIntoConstraints = false
         secondaryMenu.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
+        originalImage = imgView.image!
+        
+        compare.enabled = false
+        
+        let touchImage = UILongPressGestureRecognizer(target: self, action: Selector("handleTap:"))
+        touchImage.delegate = self
+        imgView.addGestureRecognizer(touchImage)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func handleTap(sender: UILongPressGestureRecognizer? = nil) {
+        
+        if sender!.state == .Began {
+            imgView.image = filteredImage
+        } else  {
+            imgView.image = originalImage
+        }
+        
+        
     }
     
     @IBAction func onShare(sender: AnyObject) {
@@ -75,7 +94,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let pressOK = UIAlertAction(title: "Ok", style: .Default, handler: nil)
         alertNoCamera.addAction(pressOK)
         
-        self.presentViewController(alertNoCamera, animated: true, completion: nil)    }
+        self.presentViewController(alertNoCamera, animated: true, completion: nil)
+    }
     
     // dismiss after cancel action
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
@@ -95,7 +115,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         cameraPicker.delegate = self
         cameraPicker.sourceType = .PhotoLibrary
         
-        self.presentViewController(cameraPicker, animated: true, completion: nil)    }
+        self.presentViewController(cameraPicker, animated: true, completion: nil)
+    }
     
     @IBAction func onFilter(sender: UIButton) {
         if (sender.selected) {
@@ -134,8 +155,153 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     if completed == true {
                         self.secondaryMenu.removeFromSuperview()
                     }
-                
         }
+    }
+    
+    @IBOutlet var redFilter: UIButton!
+    @IBAction func applyRedFilter(sender: AnyObject) {
+
+        let rgbaImage = RGBAImage(image: originalImage)!
+        
+        var totalRed = 0
+        
+        for y in 0..<rgbaImage.height {
+            for x in 0..<rgbaImage.width {
+                
+                let index = y * rgbaImage.width + x
+                
+                var pixel = rgbaImage.pixels[index]
+                
+                totalRed += Int(pixel.red)
+            }
+        }
+        
+        let pixelCount = rgbaImage.width * rgbaImage.height
+        let avgRed = totalRed / pixelCount
+        
+        for y in 0..<rgbaImage.height {
+            for x in 0..<rgbaImage.width {
+                let index = y * rgbaImage.width + x
+                
+                var pixel = rgbaImage.pixels[index]
+                let redDelta = Int(pixel.red) - avgRed
+                
+                var modifier = 1 * 4 * (Double(y) / Double(rgbaImage.height))
+                if (Int(pixel.red) < avgRed) {
+                    modifier = 1
+                }
+                
+                pixel.red = UInt8(max(min(255, Int(round(Double(avgRed) + modifier * Double(redDelta)))), 0))
+                rgbaImage.pixels[index] = pixel
+            
+            }
+        }
+        
+        filteredImage = rgbaImage.toUIImage()!
+        compare.enabled = true
+        imgView.image = filteredImage
+    }
+    
+    @IBOutlet var compare: UIButton!
+    @IBAction func onCompare(sender: AnyObject) {
+        if compare.selected {
+            imgView.image = filteredImage
+            compare.selected = false
+        } else {
+            imgView.image = originalImage
+            compare.selected = true
+        }
+        
+    }
+    
+    @IBOutlet var greenFilter: UIButton!
+    
+    @IBAction func applyGreenFilter(sender: AnyObject) {
+  
+        let rgbaImage = RGBAImage(image: originalImage)!
+        
+        var totalGreen = 0
+        
+        for y in 0..<rgbaImage.height {
+            for x in 0..<rgbaImage.width {
+                
+                let index = y * rgbaImage.width + x
+                
+                var pixel = rgbaImage.pixels[index]
+                
+                totalGreen += Int(pixel.green)
+            }
+        }
+        
+        let pixelCount = rgbaImage.width * rgbaImage.height
+        let avgGreen = totalGreen / pixelCount
+        
+        for y in 0..<rgbaImage.height {
+            for x in 0..<rgbaImage.width {
+                let index = y * rgbaImage.width + x
+                
+                var pixel = rgbaImage.pixels[index]
+                let greenDelta = Int(pixel.green) - avgGreen
+                
+                var modifier = 1 * 4 * (Double(y) / Double(rgbaImage.height))
+                if (Int(pixel.green) < avgGreen) {
+                    modifier = 1
+                }
+                
+                pixel.red = UInt8(max(min(255, Int(round(Double(avgGreen) + modifier * Double(greenDelta)))), 0))
+                rgbaImage.pixels[index] = pixel
+                
+            }
+        }
+        
+        filteredImage = rgbaImage.toUIImage()!
+        compare.enabled = true
+        imgView.image = filteredImage
+    }
+    
+    @IBOutlet var blueFilter: UIButton!
+    
+    @IBAction func applyBlueFilter(sender: AnyObject) {
+
+        let rgbaImage = RGBAImage(image: originalImage)!
+        
+        var totalBlue = 0
+        
+        for y in 0..<rgbaImage.height {
+            for x in 0..<rgbaImage.width {
+                
+                let index = y * rgbaImage.width + x
+                
+                var pixel = rgbaImage.pixels[index]
+                
+                totalBlue += Int(pixel.blue)
+            }
+        }
+        
+        let pixelCount = rgbaImage.width * rgbaImage.height
+        let avgBlue = totalBlue / pixelCount
+        
+        for y in 0..<rgbaImage.height {
+            for x in 0..<rgbaImage.width {
+                let index = y * rgbaImage.width + x
+                
+                var pixel = rgbaImage.pixels[index]
+                let blueDelta = Int(pixel.blue) - avgBlue
+                
+                var modifier = 1 * 4 * (Double(y) / Double(rgbaImage.height))
+                if (Int(pixel.blue) < avgBlue) {
+                    modifier = 1
+                }
+                
+                pixel.red = UInt8(max(min(255, Int(round(Double(avgBlue) + modifier * Double(blueDelta)))), 0))
+                rgbaImage.pixels[index] = pixel
+                
+            }
+        }
+        
+        filteredImage = rgbaImage.toUIImage()!
+        compare.enabled = true
+        imgView.image = filteredImage
     }
 }
 

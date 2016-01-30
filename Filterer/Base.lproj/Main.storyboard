@@ -29,13 +29,6 @@
                                             <action selector="onFilter:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ydU-GN-xPv"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cIn-eX-E81">
-                                        <rect key="frame" x="300" y="0.0" width="150" height="44"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="44" id="ZXf-oF-thX"/>
-                                        </constraints>
-                                        <state key="normal" title="Compare"/>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O97-0W-P1s">
                                         <rect key="frame" x="0.0" y="0.0" width="150" height="44"/>
                                         <constraints>
@@ -54,6 +47,16 @@
                                         <state key="normal" title="Share"/>
                                         <connections>
                                             <action selector="onShare:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Mhc-fi-utw"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cIn-eX-E81">
+                                        <rect key="frame" x="300" y="0.0" width="150" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="ZXf-oF-thX"/>
+                                        </constraints>
+                                        <state key="normal" title="Compare"/>
+                                        <connections>
+                                            <action selector="onCompare:" destination="BYZ-38-t0r" eventType="touchUpInside" id="loW-rd-o5z"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -77,7 +80,7 @@
                                     <constraint firstAttribute="bottom" secondItem="4XV-Ev-xro" secondAttribute="bottom" id="vz4-rz-6fE"/>
                                 </constraints>
                             </view>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scenery" translatesAutoresizingMaskIntoConstraints="NO" id="lzR-yo-Tsi">
+                            <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scenery" translatesAutoresizingMaskIntoConstraints="NO" id="lzR-yo-Tsi">
                                 <rect key="frame" x="0.0" y="20" width="600" height="536"/>
                             </imageView>
                         </subviews>
@@ -94,9 +97,13 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="blueFilter" destination="R8B-DA-e9W" id="q8k-sn-EhQ"/>
                         <outlet property="bottomMenu" destination="zNc-B6-06Z" id="wUa-K1-wJc"/>
+                        <outlet property="compare" destination="cIn-eX-E81" id="oO0-Tp-qDC"/>
                         <outlet property="filterButton" destination="4XV-Ev-xro" id="cPw-FO-ebg"/>
+                        <outlet property="greenFilter" destination="gi8-Yb-OAp" id="JD4-8T-k1d"/>
                         <outlet property="imgView" destination="lzR-yo-Tsi" id="3oz-eW-s6q"/>
+                        <outlet property="redFilter" destination="IjW-XO-up7" id="Cgc-Pf-NUy"/>
                         <outlet property="secondaryMenu" destination="pbz-4S-HWg" id="cmd-hm-E0p"/>
                     </connections>
                 </viewController>
@@ -111,14 +118,23 @@
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IjW-XO-up7">
                                     <rect key="frame" x="0.0" y="0.0" width="48" height="128"/>
                                     <state key="normal" title="Red"/>
+                                    <connections>
+                                        <action selector="applyRedFilter:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Gtu-Gq-ROT"/>
+                                    </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gi8-Yb-OAp">
                                     <rect key="frame" x="48" y="0.0" width="48" height="128"/>
                                     <state key="normal" title="Green"/>
+                                    <connections>
+                                        <action selector="applyGreenFilter:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Zix-oh-55A"/>
+                                    </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R8B-DA-e9W">
                                     <rect key="frame" x="96" y="0.0" width="48" height="128"/>
                                     <state key="normal" title="Blue"/>
+                                    <connections>
+                                        <action selector="applyBlueFilter:" destination="BYZ-38-t0r" eventType="touchUpInside" id="n8h-cy-vyW"/>
+                                    </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="js1-PI-kFe">
                                     <rect key="frame" x="144" y="0.0" width="48" height="128"/>
@@ -169,7 +185,7 @@
                                                     <rect key="frame" x="15" y="0.0" width="570" height="43"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
