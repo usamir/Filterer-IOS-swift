@@ -9,9 +9,16 @@
 import UIKit
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
-
+    
+    var isRed: Bool = false
+    var isGreen: Bool = false
+    var isBlue: Bool = false
+    
     var filteredImage: UIImage?
     var originalImage: UIImage!
+    
+    var modifier: Double! = 5.0
+    var imageProcessor: ImageProcessor?
     
     @IBOutlet var imgView: UIImageView!
     
@@ -19,6 +26,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet var bottomMenu: UIView!
     
     @IBOutlet var filterButton: UIButton!
+    
+    @IBOutlet var labelOrigImage: UILabel!
+    
+    @IBOutlet var editButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +42,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let touchImage = UILongPressGestureRecognizer(target: self, action: Selector("handleTap:"))
         touchImage.delegate = self
         imgView.addGestureRecognizer(touchImage)
+        
+        imageProcessor = ImageProcessor()
+        
+        redFilter.setImage(getFilterIcon("Red"), forState: .Normal)
+        greenFilter.setImage(getFilterIcon("Green"), forState: .Normal)
+        blueFilter.setImage(getFilterIcon("Blue"), forState: .Normal)
+        
+        editButton.enabled = false
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -38,15 +58,78 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         // Dispose of any resources that can be recreated.
     }
     
+    func getFilterIcon(apply: String) -> UIImage {
+        let filterIcon = UIImage(named: "scenery")!
+        let rgba = RGBAImage(image: filterIcon)!
+        let filtered = imageProcessor!.predefined(rgba, filter: apply, intensity: modifier)
+        return filtered.toUIImage()!
+    }
+    
     func handleTap(sender: UILongPressGestureRecognizer? = nil) {
         
         if sender!.state == .Began {
-            imgView.image = filteredImage
+            showFilteredImageView()
+            hideLabel()
         } else  {
+            hideFilteredImageView()
             imgView.image = originalImage
+            showLabel()
         }
+    }
+    
+    func showLabel() {
         
+        imgView.addSubview(labelOrigImage)
         
+        let topConstraint = labelOrigImage.topAnchor.constraintEqualToAnchor(imgView.topAnchor)
+        let heightConstraint = labelOrigImage.heightAnchor.constraintEqualToConstant(21)
+        let centerConstraint = labelOrigImage.centerXAnchor.constraintEqualToAnchor(imgView.centerXAnchor)
+        
+        NSLayoutConstraint.activateConstraints([topConstraint, heightConstraint, centerConstraint])
+        
+        view.layoutIfNeeded()
+
+    }
+    
+    func hideLabel() {
+        labelOrigImage.removeFromSuperview()
+    }
+    
+    @IBOutlet var filteredImgView: UIImageView!
+    
+    func showFilteredImageView() {
+        
+        if filterButton.selected {
+            hideSecondaryMenu()
+            filterButton.selected = false
+        }
+
+        view.addSubview(filteredImgView)
+        filteredImgView.image = filteredImage
+        let bottomConstraint = filteredImgView.bottomAnchor.constraintEqualToAnchor(imgView.bottomAnchor)
+        let topConstraint = filteredImgView.topAnchor.constraintEqualToAnchor(imgView.topAnchor)
+        let leftConstraint = filteredImgView.leftAnchor.constraintEqualToAnchor(imgView.leftAnchor)
+        let rightConstraint = filteredImgView.rightAnchor.constraintEqualToAnchor(imgView.rightAnchor)
+
+        NSLayoutConstraint.activateConstraints([bottomConstraint, topConstraint, leftConstraint, rightConstraint])
+        
+        view.layoutIfNeeded()
+        
+        self.filteredImgView.alpha = 0
+        UIView.animateWithDuration(0.4) {
+            self.filteredImgView.alpha = 1.0
+        }
+    }
+    
+    func hideFilteredImageView() {
+        
+        UIView.animateWithDuration(0.4, animations: {
+            self.filteredImgView.alpha = 0
+            } ) { completed in
+                if completed == true {
+                    self.filteredImgView.removeFromSuperview()
+                }
+        }
     }
     
     @IBAction func onShare(sender: AnyObject) {
@@ -105,7 +188,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String: AnyObject]) {
         dismissViewControllerAnimated(true, completion: nil)
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            imgView.image = image
+            originalImage = image
+            if compare.selected {
+                compare.selected = false
+            }
+            hideFilteredImageView()
+            
+            editButton.enabled = false
+            isRed = true
+            isBlue = false
+            isGreen = false
         }
         
     }
@@ -158,150 +250,119 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
     }
     
+    @IBOutlet var compare: UIButton!
+    @IBAction func onCompare(sender: AnyObject) {
+        if compare.selected {
+            showFilteredImageView()
+            compare.selected = false
+            hideLabel()
+        } else {
+            hideFilteredImageView()
+            imgView.image = originalImage
+            compare.selected = true
+            showLabel()
+        }
+        
+    }
+    
+
+    
     @IBOutlet var redFilter: UIButton!
     @IBAction func applyRedFilter(sender: AnyObject) {
 
         let rgbaImage = RGBAImage(image: originalImage)!
+
+        let filtered = imageProcessor!.predefined(rgbaImage, filter: "Red", intensity: modifier)
+        filteredImage = filtered.toUIImage()!
         
-        var totalRed = 0
-        
-        for y in 0..<rgbaImage.height {
-            for x in 0..<rgbaImage.width {
-                
-                let index = y * rgbaImage.width + x
-                
-                var pixel = rgbaImage.pixels[index]
-                
-                totalRed += Int(pixel.red)
-            }
-        }
-        
-        let pixelCount = rgbaImage.width * rgbaImage.height
-        let avgRed = totalRed / pixelCount
-        
-        for y in 0..<rgbaImage.height {
-            for x in 0..<rgbaImage.width {
-                let index = y * rgbaImage.width + x
-                
-                var pixel = rgbaImage.pixels[index]
-                let redDelta = Int(pixel.red) - avgRed
-                
-                var modifier = 1 * 4 * (Double(y) / Double(rgbaImage.height))
-                if (Int(pixel.red) < avgRed) {
-                    modifier = 1
-                }
-                
-                pixel.red = UInt8(max(min(255, Int(round(Double(avgRed) + modifier * Double(redDelta)))), 0))
-                rgbaImage.pixels[index] = pixel
-            
-            }
-        }
-        
-        filteredImage = rgbaImage.toUIImage()!
         compare.enabled = true
-        imgView.image = filteredImage
-    }
-    
-    @IBOutlet var compare: UIButton!
-    @IBAction func onCompare(sender: AnyObject) {
-        if compare.selected {
-            imgView.image = filteredImage
-            compare.selected = false
-        } else {
-            imgView.image = originalImage
-            compare.selected = true
-        }
+        hideLabel()
+        editButton.enabled = true
+        showFilteredImageView()
         
+        isRed = true
+        isBlue = false
+        isGreen = false
     }
     
     @IBOutlet var greenFilter: UIButton!
-    
     @IBAction func applyGreenFilter(sender: AnyObject) {
   
         let rgbaImage = RGBAImage(image: originalImage)!
         
-        var totalGreen = 0
+        let filtered = imageProcessor!.predefined(rgbaImage, filter: "Green", intensity: modifier)
+        filteredImage = filtered.toUIImage()!
         
-        for y in 0..<rgbaImage.height {
-            for x in 0..<rgbaImage.width {
-                
-                let index = y * rgbaImage.width + x
-                
-                var pixel = rgbaImage.pixels[index]
-                
-                totalGreen += Int(pixel.green)
-            }
-        }
-        
-        let pixelCount = rgbaImage.width * rgbaImage.height
-        let avgGreen = totalGreen / pixelCount
-        
-        for y in 0..<rgbaImage.height {
-            for x in 0..<rgbaImage.width {
-                let index = y * rgbaImage.width + x
-                
-                var pixel = rgbaImage.pixels[index]
-                let greenDelta = Int(pixel.green) - avgGreen
-                
-                var modifier = 1 * 4 * (Double(y) / Double(rgbaImage.height))
-                if (Int(pixel.green) < avgGreen) {
-                    modifier = 1
-                }
-                
-                pixel.red = UInt8(max(min(255, Int(round(Double(avgGreen) + modifier * Double(greenDelta)))), 0))
-                rgbaImage.pixels[index] = pixel
-                
-            }
-        }
-        
-        filteredImage = rgbaImage.toUIImage()!
         compare.enabled = true
-        imgView.image = filteredImage
+        hideLabel()
+        editButton.enabled = true
+        showFilteredImageView()
+        
+        isRed = false
+        isBlue = false
+        isGreen = true
     }
     
     @IBOutlet var blueFilter: UIButton!
-    
     @IBAction func applyBlueFilter(sender: AnyObject) {
 
         let rgbaImage = RGBAImage(image: originalImage)!
         
-        var totalBlue = 0
+        let filtered = imageProcessor!.predefined(rgbaImage, filter: "Blue", intensity: modifier)
+        filteredImage = filtered.toUIImage()!
         
-        for y in 0..<rgbaImage.height {
-            for x in 0..<rgbaImage.width {
-                
-                let index = y * rgbaImage.width + x
-                
-                var pixel = rgbaImage.pixels[index]
-                
-                totalBlue += Int(pixel.blue)
-            }
-        }
-        
-        let pixelCount = rgbaImage.width * rgbaImage.height
-        let avgBlue = totalBlue / pixelCount
-        
-        for y in 0..<rgbaImage.height {
-            for x in 0..<rgbaImage.width {
-                let index = y * rgbaImage.width + x
-                
-                var pixel = rgbaImage.pixels[index]
-                let blueDelta = Int(pixel.blue) - avgBlue
-                
-                var modifier = 1 * 4 * (Double(y) / Double(rgbaImage.height))
-                if (Int(pixel.blue) < avgBlue) {
-                    modifier = 1
-                }
-                
-                pixel.red = UInt8(max(min(255, Int(round(Double(avgBlue) + modifier * Double(blueDelta)))), 0))
-                rgbaImage.pixels[index] = pixel
-                
-            }
-        }
-        
-        filteredImage = rgbaImage.toUIImage()!
         compare.enabled = true
-        imgView.image = filteredImage
+        hideLabel()
+        editButton.enabled = true
+        showFilteredImageView()
+        
+        isRed = false
+        isBlue = true
+        isGreen = false
     }
+    
+    
+    @IBOutlet var SliderMenu: UIView!
+    func showSliderMenu() {
+        
+        view.addSubview(SliderMenu)
+        
+        //let bottomConstraint = SliderMenu.bottomAnchor.constraintEqualToAnchor(bottomMenu.topAnchor)
+        let heightConstraint = SliderMenu.heightAnchor.constraintEqualToConstant(44)
+        let leftConstraint = SliderMenu.leftAnchor.constraintEqualToAnchor(filteredImgView.leftAnchor)
+        let rightConstraint = SliderMenu.rightAnchor.constraintEqualToAnchor(filteredImgView.rightAnchor)
+        
+        NSLayoutConstraint.activateConstraints([/*bottomConstraint,*/ heightConstraint, leftConstraint, rightConstraint])
+        
+        view.layoutIfNeeded()
+    }
+    
+    func hideSliderMenu() {
+        self.SliderMenu.removeFromSuperview()
+    }
+    
+    @IBAction func onEdit(sender: UIButton) {
+        if (sender.selected) {
+            hideSliderMenu()
+            sender.selected = false
+        } else {
+            hideSecondaryMenu()
+            showSliderMenu()
+            sender.selected = true
+        }
+    }
+    
+    
+    @IBAction func onSlide(sender: UISlider) {
+        modifier = Double(sender.value)
+        if isRed {
+            applyRedFilter(sender)
+        } else if isGreen {
+            applyGreenFilter(sender)
+        } else if isBlue {
+            applyBlueFilter(sender)
+        }
+    }
+
 }
 
