@@ -33,11 +33,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         secondaryMenu.translatesAutoresizingMaskIntoConstraints = false
         secondaryMenu.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
+        
         originalImage = imgView.image!
         
         compare.enabled = false
+        
+        filteredImgView.translatesAutoresizingMaskIntoConstraints = false
         
         let touchImage = UILongPressGestureRecognizer(target: self, action: Selector("handleTap:"))
         touchImage.delegate = self
@@ -48,6 +52,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         redFilter.setImage(getFilterIcon("Red"), forState: .Normal)
         greenFilter.setImage(getFilterIcon("Green"), forState: .Normal)
         blueFilter.setImage(getFilterIcon("Blue"), forState: .Normal)
+        
+        SliderMenu.translatesAutoresizingMaskIntoConstraints = false
+        SliderMenu.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
         
         editButton.enabled = false
         
@@ -103,9 +110,14 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             hideSecondaryMenu()
             filterButton.selected = false
         }
+        
+        if editButton.selected {
+            editButton.selected = false
+        }
 
         view.addSubview(filteredImgView)
         filteredImgView.image = filteredImage
+        
         let bottomConstraint = filteredImgView.bottomAnchor.constraintEqualToAnchor(imgView.bottomAnchor)
         let topConstraint = filteredImgView.topAnchor.constraintEqualToAnchor(imgView.topAnchor)
         let leftConstraint = filteredImgView.leftAnchor.constraintEqualToAnchor(imgView.leftAnchor)
@@ -189,13 +201,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismissViewControllerAnimated(true, completion: nil)
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
             originalImage = image
-            if compare.selected {
-                compare.selected = false
-            }
+            filteredImage = image
+            compare.enabled = false
+            imgView.image = originalImage
             hideFilteredImageView()
-            
             editButton.enabled = false
-            isRed = true
+            isRed = false
             isBlue = false
             isGreen = false
         }
@@ -327,12 +338,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         view.addSubview(SliderMenu)
         
-        //let bottomConstraint = SliderMenu.bottomAnchor.constraintEqualToAnchor(bottomMenu.topAnchor)
+        let bottomConstraint = SliderMenu.bottomAnchor.constraintEqualToAnchor(bottomMenu.topAnchor)
         let heightConstraint = SliderMenu.heightAnchor.constraintEqualToConstant(44)
-        let leftConstraint = SliderMenu.leftAnchor.constraintEqualToAnchor(filteredImgView.leftAnchor)
-        let rightConstraint = SliderMenu.rightAnchor.constraintEqualToAnchor(filteredImgView.rightAnchor)
+        let leftConstraint = SliderMenu.leftAnchor.constraintEqualToAnchor(view.leftAnchor)
+        let rightConstraint = SliderMenu.rightAnchor.constraintEqualToAnchor(view.rightAnchor)
         
-        NSLayoutConstraint.activateConstraints([/*bottomConstraint,*/ heightConstraint, leftConstraint, rightConstraint])
+        NSLayoutConstraint.activateConstraints([bottomConstraint, heightConstraint, leftConstraint, rightConstraint])
         
         view.layoutIfNeeded()
     }
