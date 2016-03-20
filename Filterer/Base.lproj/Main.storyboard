@@ -102,6 +102,9 @@
                                     <imageView multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="landscape" translatesAutoresizingMaskIntoConstraints="NO" id="lzR-yo-Tsi">
                                         <rect key="frame" x="0.0" y="0.0" width="1280" height="853"/>
                                     </imageView>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uyf-3V-9GD">
+                                        <rect key="frame" x="0.0" y="0.0" width="1280" height="853"/>
+                                    </imageView>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="lzR-yo-Tsi" firstAttribute="leading" secondItem="hvq-lU-jQw" secondAttribute="leading" id="6DV-rs-1yd"/>
@@ -173,16 +176,20 @@
                                         <action selector="applyBlueFilter:" destination="BYZ-38-t0r" eventType="touchUpInside" id="n8h-cy-vyW"/>
                                     </connections>
                                 </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="js1-PI-kFe">
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="js1-PI-kFe">
                                     <rect key="frame" x="144" y="0.0" width="48" height="128"/>
-                                    <state key="normal" title="Darken"/>
+                                    <state key="normal" title="Darken">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
                                     <connections>
                                         <action selector="applyDarkenFilter:" destination="BYZ-38-t0r" eventType="touchUpInside" id="H0j-L0-Gay"/>
                                     </connections>
                                 </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bnn-2I-9LE">
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bnn-2I-9LE">
                                     <rect key="frame" x="192" y="0.0" width="48" height="128"/>
-                                    <state key="normal" title="Negative"/>
+                                    <state key="normal" title="Negative">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
                                     <connections>
                                         <action selector="applyNegativeFilter:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gt3-qY-bPc"/>
                                     </connections>
@@ -222,9 +229,6 @@
                         <constraint firstAttribute="trailing" secondItem="PxG-4H-bMF" secondAttribute="trailing" id="sJS-4J-fZh"/>
                     </constraints>
                 </view>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="uyf-3V-9GD">
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                </imageView>
             </objects>
             <point key="canvasLocation" x="249" y="395"/>
         </scene>

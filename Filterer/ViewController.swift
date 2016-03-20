@@ -61,8 +61,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         // diasble compare button
         compare.enabled = false
         
-        filteredImgView.translatesAutoresizingMaskIntoConstraints = false
-        
         // long touch support
         let touchImage = UILongPressGestureRecognizer(target: self, action: Selector("handleTap:"))
         touchImage.delegate = self
@@ -139,7 +137,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             editButton.selected = false
         }
 
-        view.addSubview(filteredImgView)
+        filteredImgView.translatesAutoresizingMaskIntoConstraints = false
+        
+        scrollView.addSubview(filteredImgView)
         filteredImgView.image = filteredImage
         
         let bottomConstraint = filteredImgView.bottomAnchor.constraintEqualToAnchor(imgView.bottomAnchor)
@@ -149,8 +149,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
         NSLayoutConstraint.activateConstraints([bottomConstraint, topConstraint, leftConstraint, rightConstraint])
         
-        view.layoutIfNeeded()
-        
+        scrollView.layoutIfNeeded()
+
         self.filteredImgView.alpha = 0
         UIView.animateWithDuration(0.4) {
             self.filteredImgView.alpha = 1.0
