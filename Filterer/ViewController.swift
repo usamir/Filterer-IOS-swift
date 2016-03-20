@@ -8,28 +8,47 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
+class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate {
     
+    // filter option that are choosen
     var isRed: Bool = false
     var isGreen: Bool = false
     var isBlue: Bool = false
+    var isDarken: Bool = false
+    var isNegative: Bool = false
     
+    // image holder
     var filteredImage: UIImage?
     var originalImage: UIImage!
     
-    var modifier: Double! = 5.0
-    var imageProcessor: ImageProcessor?
-    
+    // image viewer
+    @IBOutlet var filteredImgView: UIImageView!
     @IBOutlet var imgView: UIImageView!
     
+    // filter buttons
+    @IBOutlet var redFilter: UIButton!
+    @IBOutlet var greenFilter: UIButton!
+    @IBOutlet var blueFilter: UIButton!
+    @IBOutlet var darkenFilter: UIButton!
+    @IBOutlet var negativeFilter: UIButton!
+    
+    @IBOutlet var SliderMenu: UIView!
     @IBOutlet var secondaryMenu: UIView!
     @IBOutlet var bottomMenu: UIView!
     
+    var modifier: Double! = 5.0
+    
+    // for image processing object instance
+    var imageProcessor: ImageProcessor?
+    
     @IBOutlet var filterButton: UIButton!
-    
-    @IBOutlet var labelOrigImage: UILabel!
-    
     @IBOutlet var editButton: UIButton!
+    @IBOutlet var compare: UIButton!
+
+    // zoom support
+    @IBOutlet var scrollView: UIScrollView!
+    @IBOutlet var zoomTapGestureRecognizer: UITapGestureRecognizer!
+    var zoomIn: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,32 +58,57 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         originalImage = imgView.image!
         
+        // diasble compare button
         compare.enabled = false
         
         filteredImgView.translatesAutoresizingMaskIntoConstraints = false
         
+        // long touch support
         let touchImage = UILongPressGestureRecognizer(target: self, action: Selector("handleTap:"))
         touchImage.delegate = self
         imgView.addGestureRecognizer(touchImage)
         
+        // init image processor class for manipalting with filters
         imageProcessor = ImageProcessor()
         
+        // different filter buttons shows impact of filter on picture
         redFilter.setImage(getFilterIcon("Red"), forState: .Normal)
         greenFilter.setImage(getFilterIcon("Green"), forState: .Normal)
         blueFilter.setImage(getFilterIcon("Blue"), forState: .Normal)
+        darkenFilter.setImage(getFilterIcon("darken"), forState: .Normal)
+        negativeFilter.setImage(getFilterIcon("negative"), forState: .Normal)
         
+        // disable autoresizing contraints and set background color of slider menu
         SliderMenu.translatesAutoresizingMaskIntoConstraints = false
         SliderMenu.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
         
+        // disable edit button
         editButton.enabled = false
+        
+        // how many taps are needed so we can zoom in to picture
+        zoomTapGestureRecognizer.numberOfTapsRequired = 2
+        
         
     }
 
+    @IBAction func doubleTap(sender: AnyObject) {
+        if (!zoomIn) {
+            onTap(sender as! UITapGestureRecognizer)
+            zoomIn = true
+        } else {
+            UIView.animateWithDuration(0.4) { () -> Void in
+                self.scrollView.zoomScale = 1.5 / self.scrollView.zoomScale
+            }
+            zoomIn = false
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
+    // get icon of filter button
     func getFilterIcon(apply: String) -> UIImage {
         let filterIcon = UIImage(named: "scenery")!
         let rgba = RGBAImage(image: filterIcon)!
@@ -72,37 +116,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         return filtered.toUIImage()!
     }
     
+    // long click on picture
     func handleTap(sender: UILongPressGestureRecognizer? = nil) {
         
         if sender!.state == .Began {
             showFilteredImageView()
-            hideLabel()
         } else  {
             hideFilteredImageView()
             imgView.image = originalImage
-            showLabel()
         }
     }
     
-    func showLabel() {
-        
-        imgView.addSubview(labelOrigImage)
-        
-        let topConstraint = labelOrigImage.topAnchor.constraintEqualToAnchor(imgView.topAnchor)
-        let heightConstraint = labelOrigImage.heightAnchor.constraintEqualToConstant(21)
-        let centerConstraint = labelOrigImage.centerXAnchor.constraintEqualToAnchor(imgView.centerXAnchor)
-        
-        NSLayoutConstraint.activateConstraints([topConstraint, heightConstraint, centerConstraint])
-        
-        view.layoutIfNeeded()
-
-    }
-    
-    func hideLabel() {
-        labelOrigImage.removeFromSuperview()
-    }
-    
-    @IBOutlet var filteredImgView: UIImageView!
     
     func showFilteredImageView() {
         
@@ -144,12 +168,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
     }
     
+    // MARK: Share
     @IBAction func onShare(sender: AnyObject) {
         let activityController = UIActivityViewController(activityItems: ["check this out", imgView.image!], applicationActivities: nil)
         presentViewController(activityController, animated: true, completion: nil)
     }
     
-
+    // MARK: New Photo
     @IBAction func onNewPhoto(sender: AnyObject) {
         let actionSheet = UIAlertController(title: "New Photo", message: nil, preferredStyle: .ActionSheet)
         
@@ -197,6 +222,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismissViewControllerAnimated(true, completion: nil)
     }
     
+    // MARK: UIImagePickerControllerDelegate
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String: AnyObject]) {
         dismissViewControllerAnimated(true, completion: nil)
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
@@ -209,6 +235,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             isRed = false
             isBlue = false
             isGreen = false
+            isDarken = false
+            isNegative = false
         }
         
     }
@@ -221,6 +249,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         self.presentViewController(cameraPicker, animated: true, completion: nil)
     }
     
+    // MARK: Filter Menu
     @IBAction func onFilter(sender: UIButton) {
         if (sender.selected) {
             hideSecondaryMenu()
@@ -261,24 +290,18 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
     }
     
-    @IBOutlet var compare: UIButton!
     @IBAction func onCompare(sender: AnyObject) {
         if compare.selected {
             showFilteredImageView()
             compare.selected = false
-            hideLabel()
         } else {
             hideFilteredImageView()
             imgView.image = originalImage
             compare.selected = true
-            showLabel()
         }
         
     }
     
-
-    
-    @IBOutlet var redFilter: UIButton!
     @IBAction func applyRedFilter(sender: AnyObject) {
 
         let rgbaImage = RGBAImage(image: originalImage)!
@@ -287,16 +310,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         filteredImage = filtered.toUIImage()!
         
         compare.enabled = true
-        hideLabel()
         editButton.enabled = true
         showFilteredImageView()
         
         isRed = true
         isBlue = false
         isGreen = false
+        isDarken = false
+        isNegative = false
     }
     
-    @IBOutlet var greenFilter: UIButton!
     @IBAction func applyGreenFilter(sender: AnyObject) {
   
         let rgbaImage = RGBAImage(image: originalImage)!
@@ -305,16 +328,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         filteredImage = filtered.toUIImage()!
         
         compare.enabled = true
-        hideLabel()
         editButton.enabled = true
         showFilteredImageView()
         
         isRed = false
         isBlue = false
         isGreen = true
+        isDarken = false
+        isNegative = false
     }
     
-    @IBOutlet var blueFilter: UIButton!
     @IBAction func applyBlueFilter(sender: AnyObject) {
 
         let rgbaImage = RGBAImage(image: originalImage)!
@@ -323,17 +346,50 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         filteredImage = filtered.toUIImage()!
         
         compare.enabled = true
-        hideLabel()
         editButton.enabled = true
         showFilteredImageView()
         
         isRed = false
         isBlue = true
         isGreen = false
+        isDarken = false
+        isNegative = false
     }
     
+    @IBAction func applyDarkenFilter(sender: AnyObject) {
+        
+        let rgbaImage = RGBAImage(image: originalImage)!
+        
+        let filtered = imageProcessor!.predefined(rgbaImage, filter: "darken", intensity: modifier)
+        filteredImage = filtered.toUIImage()!
+        
+        compare.enabled = true
+        showFilteredImageView()
+        
+        isRed = false
+        isBlue = false
+        isGreen = false
+        isDarken = true
+        isNegative = false
+    }
     
-    @IBOutlet var SliderMenu: UIView!
+    @IBAction func applyNegativeFilter(sender: AnyObject) {
+        
+        let rgbaImage = RGBAImage(image: originalImage)!
+        
+        let filtered = imageProcessor!.predefined(rgbaImage, filter: "negative", intensity: modifier)
+        filteredImage = filtered.toUIImage()!
+        
+        compare.enabled = true
+        showFilteredImageView()
+        
+        isRed = false
+        isBlue = false
+        isGreen = false
+        isDarken = false
+        isNegative = true
+    }
+
     func showSliderMenu() {
         
         view.addSubview(SliderMenu)
@@ -372,8 +428,23 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             applyGreenFilter(sender)
         } else if isBlue {
             applyBlueFilter(sender)
+        } else if isDarken {
+            applyDarkenFilter(sender)
+        } else if isNegative {
+            applyNegativeFilter(sender)
         }
     }
-
+    
+    // MARK: UIScrollViewDelegate
+    func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+        return imgView
+    }
+    
+    @IBAction func onTap(sender: UITapGestureRecognizer) {
+        UIView.animateWithDuration(0.4) { () -> Void in
+            self.scrollView.zoomScale = 1.5 * self.scrollView.zoomScale
+        }
+    }
+    
 }
 
